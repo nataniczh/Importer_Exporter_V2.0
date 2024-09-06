@@ -3,17 +3,28 @@ from typing import Annotated
 from sqlalchemy import String, create_engine
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
-from src.config import settings
+from config import settings
+
+from sqlcipher3 import dbapi2 as sqlcipher
 
 
-sync_engine = create_engine(
-    url = settings.DATABASE_URL_pyodbc,
+remote_engine = create_engine(
+    url = settings.REMOTE_DATABASE_URL,
     echo = True,
     use_setinputsizes = False
 )
 
+local_engine = create_engine(
+    url = settings.LOCAL_DATABASE_URL,
+    module = sqlcipher,
+    echo = True
+)
 
-session = sessionmaker(sync_engine)
+
+remote_session = sessionmaker(remote_engine)
+
+local_session = sessionmaker(local_engine)
+
 str_256 = Annotated[str, 256]
 
 class Base(DeclarativeBase):
